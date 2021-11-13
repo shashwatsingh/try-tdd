@@ -1,24 +1,33 @@
+using Ardalis.GuardClauses;
+
 namespace QuizApp.Core;
 
 public interface ITenantManager
 {
     bool TryFindTenant(string ownerEmailAddress, out Tenant tenant);
+    void CreateTenant(CreateTenantDto vm);
 }
 
 public interface ITenantDb
 {
     IEnumerable<Tenant> FindTenants();
+    void AddTenant(Tenant tenant);
 }
 
-public class TenantDb : ITenantDb 
+public class TenantDb : ITenantDb
 {
     private readonly List<Tenant> tenants = new()
     {
         new Tenant
         {
-            Owner = new User { Id = 1, Name = "A", EmailAddress = "a@test.com"},
+            Owner = new User { Id = 1, Name = "A", EmailAddress = "a@test.com" },
         }
     };
+
+    public void AddTenant(Tenant tenant)
+    {
+        tenants.Add(tenant);
+    }
 
     public IEnumerable<Tenant> FindTenants()
     {
@@ -35,7 +44,7 @@ public sealed class TenantManager : ITenantManager
         this.db = db;
     }
     public bool TryFindTenant(
-        string ownerEmailAddress, 
+        string ownerEmailAddress,
         out Tenant tenant)
     {
         // loop over all known tenants
@@ -50,9 +59,52 @@ public sealed class TenantManager : ITenantManager
             tenant = found;
             return true;
         }
-        
+
         // return false if not
         tenant = Tenant.NullTenant;
         return false;
     }
+    public void CreateTenant(CreateTenantDto vm)
+    {
+        // validate the input
+
+        // validate that the owner doesn't exist already
+
+
+        // initialize the new tenant model
+        // save to DB
+
+        var tenant = new Tenant
+        {
+            Owner = new User
+            {
+                Name = vm.Name,
+                EmailAddress = vm.EmailAddress
+            },
+            Participants = Enumerable.Empty<User>(),
+            Quizzes = Enumerable.Empty<Quiz>(),
+            Runs = Enumerable.Empty<QuizRun>(),
+        };
+
+        db.AddTenant(tenant);
+    }
+}
+
+public sealed record CreateTenantDto
+{
+    public CreateTenantDto(
+        string name,
+        string emailAddress)
+    {
+        Guard.Against.NullOrWhiteSpace(name, nameof(name));
+        Guard.Against.NullOrWhiteSpace(emailAddress, nameof(emailAddress));
+        // TODO: validatate as email address
+
+        Name = name;
+        EmailAddress = emailAddress;
+    }
+
+    public string Name { get; }
+
+    public string EmailAddress { get; }
 }

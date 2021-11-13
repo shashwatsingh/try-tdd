@@ -110,8 +110,9 @@ quiz ends
 
 // Manage creating/maintaining a tenant
 ITenantManager
-    - creating a tenant properly (having valid tenant properties)
     - finding a tenant given an ownerEmail
+    - creating a tenant properly (having valid tenant properties)
+
 
 
 
