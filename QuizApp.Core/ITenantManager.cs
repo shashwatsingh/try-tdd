@@ -86,8 +86,6 @@ public sealed class TenantManager : ITenantManager
                 EmailAddress = vm.EmailAddress
             },
             Participants = Enumerable.Empty<User>(),
-            Quizzes = Enumerable.Empty<Quiz>(),
-            Runs = Enumerable.Empty<QuizRun>(),
         };
 
         db.AddTenant(tenant);
