@@ -22,12 +22,15 @@ public class TenantManagerTests
         Assert.False(manager.TryFindTenant("invalid@test.com", out var tenant));
     }
     [Fact]
-    public void CreateTenant_ShouldThrowOnExistingOwner()
+    public void CreateTenant_ShouldOnlyAllowUniqueTenants()
     {
         ITenantManager manager = new TenantManager(new TestTenantDb());
-        var vm = new CreateTenantDto(name: "TEST 1", emailAddress: "a@test.com");
+        var vm = new CreateTenantDto(
+            name: "TEST 1",
+            emailAddress: TestTenantDb.TenentEmail
+        );
 
-        Assert.Throws<Exception>(
+        Assert.Throws<TenantAlreadyExistsException>(
             () => manager.CreateTenant(vm));
     }
 }
@@ -35,11 +38,12 @@ public class TenantManagerTests
 // Stubbing class dependencies
 internal class TestTenantDb : ITenantDb
 {
+    public const string TenentEmail = "a@test.com";
     internal static readonly List<Tenant> Tenants = new()
     {
         new Tenant
         {
-            Owner = new User { Id = 1, Name = "A", EmailAddress = "a@test.com" },
+            Owner = new User { Id = 1, Name = "A", EmailAddress = TenentEmail },
         }
     };
 

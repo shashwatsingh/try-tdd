@@ -67,9 +67,13 @@ public sealed class TenantManager : ITenantManager
     public void CreateTenant(CreateTenantDto vm)
     {
         // validate the input
+        // DTO constructor only works with valid inputs (required field, length, etc.)
 
         // validate that the owner doesn't exist already
-
+        if (TryFindTenant(vm.EmailAddress, out _))
+        {
+            throw new TenantAlreadyExistsException("A tenant with this email address already exists", vm.EmailAddress);
+        }
 
         // initialize the new tenant model
         // save to DB
@@ -107,4 +111,17 @@ public sealed record CreateTenantDto
     public string Name { get; }
 
     public string EmailAddress { get; }
+}
+
+public class TenantAlreadyExistsException : System.Exception
+{
+    public string EmailAddress { get; }
+    public TenantAlreadyExistsException(string message, string emailAddress) : base(message)
+    {
+        EmailAddress = emailAddress;
+    }
+    public TenantAlreadyExistsException(string message, System.Exception inner, string emailAddress) : base(message, inner)
+    {
+        EmailAddress = emailAddress;
+    }
 }
